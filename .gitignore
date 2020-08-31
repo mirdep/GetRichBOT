@@ -1,3 +1,11 @@
+#GETRICHBOT
+config.ini
+GetRichBOT.spec
+GetRichBOT.session
+GetRichBOT.session-journal
+banca.stats
+entradas.stats
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
