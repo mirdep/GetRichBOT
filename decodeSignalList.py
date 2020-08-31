@@ -80,10 +80,11 @@ def getSignal(info):
 
 
 def removeBlankLines(signalList):
+    cleanList = []
     for signal in signalList:
-        if signal.strip() == '':
-            signalList.remove(signal)
-    return signalList
+        if signal.strip() != '':
+            cleanList.append(signal)
+    return cleanList
 
 
 def decodeSingleList(signalList):
@@ -91,24 +92,22 @@ def decodeSingleList(signalList):
     for signal in signalList:
         signals.append(getSignal(signal))
 
-    isValid = False
+    validos = []
     for signal in signals:
-        if not signal.isValid():
-            signals.remove(signal)
-        else:
-            isValid = True
+        if signal.isValid():
+            validos.append(signal)
 
-    return isValid, signals
+    isValid = len(validos) > 0
+    return isValid, validos
 
 
 def decodeGroupList(signalList):
     signalList = removeBlankLines(signalList)
-    if len(signalList) > 1:
-        duration = getDuration(signalList[0])
-        signalList.pop(0)
-        if duration != None:
-            for i in range(len(signalList)):
-                signalList[i] += ' M' + str(duration)
-            return decodeSingleList(signalList)
-
-    return False, None
+    duration = 0
+    for i, signal in enumerate(signalList):
+        temp = getDuration(signal)
+        if temp == None:
+            signalList[i] += ' M'+str(duration)
+        else:
+            duration = temp
+    return decodeSingleList(signalList)
