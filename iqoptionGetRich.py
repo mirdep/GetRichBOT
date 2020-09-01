@@ -107,16 +107,12 @@ def getResult(id, tipo):
 
 
 def buy(signal):
-    for i in range(2):
-        completed, id = iqoptionClient.buy(signal.stake, signal.asset, signal.action, signal.duration)
-        if completed:
-            return True, 'binary', id
-        completed, id = iqoptionClient.buy_digital_spot(signal.asset, signal.stake, signal.action, signal.duration)
-        if completed:
-            return True, 'digital', id
-
-        if signal.asset.find('OTC') == -1:
-            signal.asset += '-OTC'
+    completed, id = iqoptionClient.buy(signal.stake, signal.asset, signal.action, signal.duration)
+    if completed:
+        return True, 'binary', id
+    completed, id = iqoptionClient.buy_digital_spot(signal.asset, signal.stake, signal.action, signal.duration)
+    if completed:
+        return True, 'digital', id
     return None, None, None
 
 def execSignal(signal):

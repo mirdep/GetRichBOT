@@ -61,7 +61,7 @@ def getStake(balance):
 
 def podeExecutar(balance):
     podeExecutar = False
-    banca = getBanca(balance)
+    banca = getBanca(balance, deHoje=True)
     lucro = balance-banca
 
     stopWin = banca * (float(configReader.get('stop_win')) / 100)
