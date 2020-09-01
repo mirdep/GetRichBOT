@@ -226,4 +226,4 @@ def addList(message, listType):
         for signal in signalList:
             signal.stake = stake
             addSignalToLine(signal)
-    return isValid
+    return isValid, len(signalList)

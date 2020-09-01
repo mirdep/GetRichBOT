@@ -10,6 +10,8 @@ import threading
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=(logging.WARNING))
 
+print('Iniciado em: '+str(datetime.now()))
+
 import iqoptionGetRich
 
 #========= TELEGRAM START ==========
@@ -103,14 +105,14 @@ async def cmd_adicionarLista(message):
     elif commandState[1] == 11 or commandState[1] == 21:
         await sendMessage('Iniciando verificação da lista. Pode demorar alguns segundos...')
         if commandState[1] == 11:
-            isValid = iqoptionGetRich.addList(message, 'single')
+            isValid, qtdSinaisValidos = iqoptionGetRich.addList(message, 'single')
         else:
-            isValid = iqoptionGetRich.addList(message, 'group')
+            isValid, qtdSinaisValidos = iqoptionGetRich.addList(message, 'group')
 
         if isValid:
-            await sendMessage('Lista verificada e adicionada com sucesso.')
+            await sendMessage('Lista verificada! Foram adicionados '+str(qtdSinaisValidos)+' sinais.')
         else:
-            await sendMessage('1 ou mais sinais inválidos. Favor tente novamente.')
+            await sendMessage('Nenhum sinal válido foi identificado. Tente novamente.')
         commandState = [0, 0]
 
 
