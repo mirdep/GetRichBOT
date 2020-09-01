@@ -18,7 +18,7 @@ def LOG(message):
 
 def formatTime(timestamp):
     time = datetime.fromtimestamp(timestamp)
-    return str(time.day) + '/' + str(time.month) + '/' + str(time.year % 100) + ' ' + '{:02d}'.format(time.hour) + ':' + '{:02d}'.format(time.minute)
+    return '{:02d}'.format(time.day) + '/' + '{:02d}'.format(time.month) + '/' + '{:02d}'.format(time.year % 100) + ' ' + '{:02d}'.format(time.hour) + ':' + '{:02d}'.format(time.minute)
 
 
 def getBanca(balance, deHoje=False):
@@ -37,7 +37,8 @@ def getBanca(balance, deHoje=False):
             if len(bancas) > 0:
                 bancaRecente = bancas[(len(bancas) - 1)].split(SEPARATOR)
                 tempo = datetime.fromtimestamp(float(bancaRecente[2]))
-                if tempo.month == datetime.now().month and tempo.day == datetime.now().day:
+                now = datetime.now()
+                if tempo.month == now.month and tempo.day == now.day:
                     banca = float(bancaRecente[1])
         if banca == None:
             atualizarBanca(balance)
@@ -88,8 +89,9 @@ def getEntradasExecutadasHoje():
         entradas = reader.read().splitlines()
         now = datetime.now()
         for entrada in entradas:
-            if entrada[0:2] == str(now.day):
-                info = entrada.split(SEPARATOR)
+            info = entrada.split(SEPARATOR)
+            data = info[0].split('/')
+            if int(data[0]) == now.day and int(data[1]) == now.month and int(data[2][0:2]) == now.year%100:
                 message = info[0].split(' ')[1] + SEPARATOR + info[3]
                 if info[3].find('-') != -1:
                     message += ' ❌'
