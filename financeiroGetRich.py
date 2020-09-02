@@ -76,12 +76,15 @@ def podeExecutar(balance, signal):
     if lucro > stopWin and lucro < stopWin*1.05:
         LOG('Você já atingiu seu Stop Win de hoje. Parabéns, já pode descansar!')
     elif lucro >= stopWin*1.05:
-        LOG('Você já atingiu seu Stop Win de hoje. Operando com a gordura!')
         if signal.qtdMG == 0:
+            LOG('Você já atingiu seu Stop Win de hoje. Operando com a gordura!')
             podeExecutar = True
-            signal.stake = lucro - stopWin
+            signal.stake = (lucro - stopWin)*0.95
             if signal.stake > getStake(balance):
                 signal.stake = getStake(balance)
+        else:
+            LOG('Não é possível realizar Gale com gordura no momento. Aguarde futuras novidades!')
+            #Futuramente: Código para Gale com gordura
     elif lucro <= stopLoss:
         LOG('Você já atingiu seu Stop Loss de hoje. Não desanime, amanhã você vai recuperar!')
     else:
