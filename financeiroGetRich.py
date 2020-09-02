@@ -53,6 +53,11 @@ def atualizarBanca(balance):
     except:
         LOG('Não foi possível salvar os dados da banca! Contate o administrador.')
 
+def calculateGale(stake):
+    if type(stake) == float or type(stake) == int:
+        return stake * 2
+    return 0
+
 
 def getStake(balance):
     stakePorcentagem = float(configReader.get('stake'))
@@ -60,9 +65,8 @@ def getStake(balance):
     return banca*(stakePorcentagem/100)
 
 
-def podeExecutar(balance):
+def podeExecutar(balance, signal):
     podeExecutar = False
-    stake = 0
     banca = getBanca(balance, deHoje=True)
     lucro = balance-banca
 
@@ -73,16 +77,20 @@ def podeExecutar(balance):
         LOG('Você já atingiu seu Stop Win de hoje. Parabéns, já pode descansar!')
     elif lucro >= stopWin*1.05:
         LOG('Você já atingiu seu Stop Win de hoje. Operando com a gordura!')
-        podeExecutar = True
-        stake = lucro - stopWin
-        if stake > getStake(balance):
-            stake = getStake(balance)
+        if signal.qtdMG == 0:
+            podeExecutar = True
+            signal.stake = lucro - stopWin
+            if signal.stake > getStake(balance):
+                signal.stake = getStake(balance)
     elif lucro <= stopLoss:
         LOG('Você já atingiu seu Stop Loss de hoje. Não desanime, amanhã você vai recuperar!')
     else:
         podeExecutar = True
-        stake = getStake(balance)
-    return podeExecutar, stake
+        if signal.qtdMG > 0:
+            signal.stake = calculateGale(signal.stake)
+        else:
+            signal.stake = getStake(balance)
+    return podeExecutar, signal
 
 
 def addEntradaExecutada(signal, id, profit):

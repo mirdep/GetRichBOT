@@ -32,12 +32,6 @@ def getBalance():
     return iqoptionClient.get_balance()
 
 
-def calculateGale(stake):
-    if type(stake) == float or (type(stake) == int):
-        return stake * 2
-    return 0
-
-
 def getSaldo():
     bancaHoje = financeiroGetRich.getBanca(getBalance(), deHoje=True)
     saldo = getBalance()
@@ -150,11 +144,8 @@ def realizarOperacao(signal):
 def executarSinal(signal):
     for i in range(int(configReader.get('max_gale')) + 1):
         signal.qtdMG = i
-        podeExecutar, stake = financeiroGetRich.podeExecutar(getBalance())
-        if i > 0:
-            signal.stake = calculateGale(signal.stake)
-        else:
-            signal.stake = stake
+        podeExecutar, signalTemp = financeiroGetRich.podeExecutar(getBalance(), signal)
+        signal = signalTemp
             
         if podeExecutar:
             realizarMG = realizarOperacao(signal)
