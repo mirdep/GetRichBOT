@@ -115,47 +115,60 @@ def buy(signal):
         return True, 'digital', id
     return None, None, None
 
-def execSignal(signal):
-    if checkConnection():
-        for i in range(int(configReader.get('max_gale')) + 1):
-            if i > 0:
-                    signal.stake = calculateGale(signal.stake)
-                    
-            if financeiroGetRich.podeExecutar(getBalance()):
-                completed, tipo, id = buy(signal)
+def processarResultado(signal, id, tipo):
+    realizarMG = False
+    profit = getResult(id, tipo)
+    financeiroGetRich.addEntradaExecutada(signal, id, profit)
+    if profit == None:
+        print('Não foi possível pegar o resultado da entrada ID = ' + str(id))
 
-                if completed:
-                    message = '\n=====ENTRADA FEITA=====\n'
-                    if i > 0:
-                        message += str(i) + 'º MartinGale\n'
-                    message += 'ID = ' + str(id) + '\n' + signal.toString() + '\n======================='
-                    print(message)
-                    time.sleep(30)
-                    profit = getResult(id, tipo)
-                    financeiroGetRich.addEntradaExecutada(signal, id, profit)
-                    if profit != None:
-                        if profit >= 0:
-                            LOG('Você lucrou = R$' + str('{:.2f}'.format(profit)) + ' ✅✅✅\nNa entrada ' + signal.toString())
-                            break
-                        else:
-                            LOG('Você lucrou = R$' + str('{:.2f}'.format(profit)) + ' ❌\nNa entrada ' + signal.toString())
-
-                    else:
-                        print('Não foi possível pegar o resultado da entrada ID = ' + str(id))
-                        break
-                else:
-                    message = '\nErro ao executar entrada:\n' + signal.toString()
-                    print(message)
-                    break
-            else:
-                break
+    elif profit >= 0:
+        LOG('Você lucrou = R$' + str('{:.2f}'.format(profit)) + ' ✅✅✅\nNa entrada ' + signal.toString())
 
     else:
-        message = '\nErro ao executar entrada:\n' + signal.toString()
+        LOG('Você lucrou = R$' + str('{:.2f}'.format(profit)) + ' ❌\nNa entrada ' + signal.toString())
+        realizarMG = True
+    return realizarMG
+
+def realizarOperacao(signal):
+    completed, tipo, id = buy(signal)
+    realizarMG = False
+    if completed:
+        message = '\n=====ENTRADA FEITA=====\n'
+        if signal.qtdMG > 0:
+            message += str(signal.qtdMG) + 'º MartinGale\n'
+        message += 'ID = ' + str(id) + '\n' + signal.toString() + '\n=======================\n'
         print(message)
+        time.sleep(30)
+        realizarMG = processarResultado(signal, id, tipo)
+
+    else:
+        print('\nErro ao executar entrada:\n' + signal.toString())
+
+    return realizarMG
+
+def executarSinal(signal):
+    for i in range(int(configReader.get('max_gale')) + 1):
+        signal.qtdMG = i
+        podeExecutar, stake = financeiroGetRich.podeExecutar(getBalance())
+        if i > 0:
+            signal.stake = calculateGale(signal.stake)
+        else:
+            signal.stake = stake
+            
+        if podeExecutar:
+            realizarMG = realizarOperacao(signal)
+            if not realizarMG:
+                break
+        else:
+            break
+
 
 def requestSignalExec(signal):
-    threading.Thread(target=execSignal, args=(signal,)).start()
+    if checkConnection():
+        threading.Thread(target=executarSinal, args=(signal,)).start()
+    else:
+        print('\nNão foi possível se conectar à IQOPtion:\n' + signal.toString())
 
 
 def signalLineExecution():

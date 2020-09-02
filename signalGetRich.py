@@ -23,6 +23,7 @@ class Signal:
         self.asset = asset
         self.action = action
         self.duration = duration
+        self.qtdMG = 0
 
     def timeIsValid(self):
         return type(self.time) == float or type(self.time) == int

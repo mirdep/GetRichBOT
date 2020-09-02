@@ -13,7 +13,7 @@ LOG_LABEL = '[Financeiro]'
 SEPARATOR = ' | '
 
 def LOG(message):
-    print(LOG_LABEL + ' ' + message)
+    print('\n'+LOG_LABEL + ' ' + message)
 
 
 def formatTime(timestamp):
@@ -62,19 +62,27 @@ def getStake(balance):
 
 def podeExecutar(balance):
     podeExecutar = False
+    stake = 0
     banca = getBanca(balance, deHoje=True)
     lucro = balance-banca
 
     stopWin = banca * (float(configReader.get('stop_win')) / 100)
     stopLoss = 0 - banca * (float(configReader.get('stop_loss')) / 100)
 
-    if lucro >= stopWin:
+    if lucro > stopWin and lucro < stopWin*1.05:
         LOG('Você já atingiu seu Stop Win de hoje. Parabéns, já pode descansar!')
+    elif lucro >= stopWin*1.05:
+        LOG('Você já atingiu seu Stop Win de hoje. Operando com a gordura!')
+        podeExecutar = True
+        stake = lucro - stopWin
+        if stake > getStake(balance):
+            stake = getStake(balance)
     elif lucro <= stopLoss:
         LOG('Você já atingiu seu Stop Loss de hoje. Não desanime, amanhã você vai recuperar!')
     else:
         podeExecutar = True
-    return podeExecutar
+        stake = getStake(balance)
+    return podeExecutar, stake
 
 
 def addEntradaExecutada(signal, id, profit):

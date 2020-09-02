@@ -214,31 +214,31 @@ async def my_event_handler(event):
             else:
                 await sendMessage('Olá seu noiado!\nSegue a lista de comandos disponíveis: \n\n/lista \n/fila \n/zerarfila \n/saldo \n/desligar \n/executadas \n/config')
 
-    if commandState[0] == 1:
-        await cmd_adicionarLista(message)
+        if commandState[0] == 1:
+            await cmd_adicionarLista(message)
 
-    elif commandState[0] == 2:
-        await cmd_listarFilaSinais()
-        commandState = [0, 0]
+        elif commandState[0] == 2:
+            await cmd_listarFilaSinais()
+            commandState = [0, 0]
 
-    elif commandState[0] == 3:
-        await cmd_zerarFila()
-        commandState = [0, 0]
+        elif commandState[0] == 3:
+            await cmd_zerarFila()
+            commandState = [0, 0]
 
-    elif commandState[0] == 4:
-        await cmd_mostrarSaldo()
-        commandState = [0, 0]
+        elif commandState[0] == 4:
+            await cmd_mostrarSaldo()
+            commandState = [0, 0]
 
-    elif commandState[0] == 5:
-        await cmd_desligar()
-        commandState = [0, 0]
+        elif commandState[0] == 5:
+            await cmd_desligar()
+            commandState = [0, 0]
 
-    elif commandState[0] == 6:
-        await cmd_entradasExecutadas()
-        commandState = [0, 0]
+        elif commandState[0] == 6:
+            await cmd_entradasExecutadas()
+            commandState = [0, 0]
 
-    elif commandState[0] == 7:
-        await cmd_editarConfigs(message)
+        elif commandState[0] == 7:
+            await cmd_editarConfigs(message)
 
 #======= TESTES
 #iqoptionGetRich.execSignal(signalGetRich.Signal(1598590445,100,'EURUSD','put',1))
