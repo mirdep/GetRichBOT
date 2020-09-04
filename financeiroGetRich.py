@@ -21,28 +21,27 @@ def formatTime(timestamp):
     return '{:02d}'.format(time.day) + '/' + '{:02d}'.format(time.month) + '/' + '{:02d}'.format(time.year % 100) + ' ' + '{:02d}'.format(time.hour) + ':' + '{:02d}'.format(time.minute)
 
 
-def getBanca(balance, deHoje=False):
-    banca = None
-    if deHoje:
-        juros = 'composto'
-    else:
-        juros = configReader.get('juros')
+def calculateGale(stake):
+    if type(stake) == float or type(stake) == int:
+        return stake * 2
+    return 0
 
-    if juros == 'simples':
-        banca = float(configReader.get('banca'))
-    
-    elif juros == 'composto':
-        with open(HISTORICO_BANCA) as (reader):
-            bancas = reader.read().splitlines()
-            if len(bancas) > 0:
-                bancaRecente = bancas[(len(bancas) - 1)].split(SEPARATOR)
-                tempo = datetime.fromtimestamp(float(bancaRecente[2]))
-                now = datetime.now()
-                if tempo.month == now.month and tempo.day == now.day:
-                    banca = float(bancaRecente[1])
-        if banca == None:
-            atualizarBanca(balance)
-            banca = balance
+def getBanca():
+    return float(configReader.get('banca'))
+
+def getSaldoHoje(balance):
+    banca = None
+    with open(HISTORICO_BANCA) as (reader):
+        bancas = reader.read().splitlines()
+        if len(bancas) > 0:
+            bancaRecente = bancas[(len(bancas) - 1)].split(SEPARATOR)
+            tempo = datetime.fromtimestamp(float(bancaRecente[2]))
+            now = datetime.now()
+            if tempo.month == now.month and tempo.day == now.day:
+                banca = float(bancaRecente[1])
+    if banca == None:
+        atualizarBanca(balance)
+        banca = balance
     return banca
 
 def atualizarBanca(balance):
@@ -53,46 +52,45 @@ def atualizarBanca(balance):
     except:
         LOG('Não foi possível salvar os dados da banca! Contate o administrador.')
 
-def calculateGale(stake):
-    if type(stake) == float or type(stake) == int:
-        return stake * 2
-    return 0
 
-
-def getStake(balance):
+def getStake():
     stakePorcentagem = float(configReader.get('stake'))
-    banca = getBanca(balance)
+    banca = getBanca()
     return banca*(stakePorcentagem/100)
 
+def getSaldoStopWin(saldoAtual):
+    return getSaldoHoje(saldoAtual) + getBanca() * (float(configReader.get('stop_win')) / 100)
 
-def podeExecutar(balance, signal):
+def getSaldoStopLoss(saldoAtual):
+    return getSaldoHoje(saldoAtual) - getBanca() * (float(configReader.get('stop_loss')) / 100)    
+
+
+def podeExecutar(saldoAtual, signal):
     podeExecutar = False
-    banca = getBanca(balance, deHoje=True)
-    lucro = balance-banca
 
-    stopWin = banca * (float(configReader.get('stop_win')) / 100)
-    stopLoss = 0 - banca * (float(configReader.get('stop_loss')) / 100)
+    saldoStopWin = getSaldoStopWin(saldoAtual)
+    saldoStopLoss = getSaldoStopLoss(saldoAtual)
 
-    if lucro > stopWin and lucro < stopWin*1.05:
+    if saldoAtual >= saldoStopWin and saldoAtual <= saldoStopWin*1.002:
         LOG('Você já atingiu seu Stop Win de hoje. Parabéns, já pode descansar!')
-    elif lucro >= stopWin*1.05:
+    elif saldoAtual > saldoStopWin*1.002:
         if signal.qtdMG == 0:
             LOG('Você já atingiu seu Stop Win de hoje. Operando com a gordura!')
             podeExecutar = True
-            signal.stake = (lucro - stopWin)*0.95
-            if signal.stake > getStake(balance):
-                signal.stake = getStake(balance)
+            signal.stake = (saldoAtual - saldoStopWin)*0.95
+            if signal.stake > getStake():
+                signal.stake = getStake()
         else:
             LOG('Não é possível realizar Gale com gordura no momento. Aguarde futuras novidades!')
             #Futuramente: Código para Gale com gordura
-    elif lucro <= stopLoss:
+    elif saldoAtual <= saldoStopLoss:
         LOG('Você já atingiu seu Stop Loss de hoje. Não desanime, amanhã você vai recuperar!')
     else:
         podeExecutar = True
         if signal.qtdMG > 0:
             signal.stake = calculateGale(signal.stake)
         else:
-            signal.stake = getStake(balance)
+            signal.stake = getStake()
     return podeExecutar, signal
 
 

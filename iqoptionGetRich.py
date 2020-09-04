@@ -31,14 +31,31 @@ def LOG(message):
 def getBalance():
     return iqoptionClient.get_balance()
 
+def formatMoneyBRL(money):
+    return 'R$'+'{:.2f}'.format(money)
+
 
 def getSaldo():
-    bancaHoje = financeiroGetRich.getBanca(getBalance(), deHoje=True)
-    saldo = getBalance()
-    return 'Banca do dia = R$' + '{:.2f}'.format(bancaHoje) + '\nSaldo atual = R$' + '{:.2f}'.format(saldo) + '\nLucro = R$' + '{:.2f}'.format(saldo - bancaHoje)
+    saldoAtual = getBalance()
+    banca = financeiroGetRich.getBanca()
+    message = 'Banca = '+formatMoneyBRL(banca)+'\n'
+    stake = financeiroGetRich.getStake()
+    message += 'Stake = '+formatMoneyBRL(stake)+'\n'
+    saldoHoje = financeiroGetRich.getSaldoHoje(saldoAtual)
+    message += 'Saldo do dia = '+formatMoneyBRL(saldoHoje)+'\n'
+    stopWin = financeiroGetRich.getSaldoStopWin(saldoAtual)
+    message += 'StopWin = '+formatMoneyBRL(stopWin)+'\n'
+    stopLoss = financeiroGetRich.getSaldoStopLoss(saldoAtual)
+    message += 'StopLoss = '+formatMoneyBRL(stopLoss)+'\n'
+    message += '--------------------------------------\n'
+    message += 'Saldo atual = '+formatMoneyBRL(saldoAtual)+'\n'
+    lucro = saldoAtual - saldoHoje
+    lucroPorcentagem = (lucro/banca)*100
+    message += 'Lucro = '+formatMoneyBRL(lucro)+' ('+'{:.2f}'.format(lucroPorcentagem)+'%)'
+    return message
 
 
-financeiroGetRich.getBanca(getBalance(), deHoje=True)
+financeiroGetRich.getSaldoHoje(getBalance())
 signalExecLine = []
 
 def printSignalLineInfo():
@@ -210,7 +227,7 @@ def addSignal_OverMilionarios(signalMessage):
     signal = decodeSignalList.getSignal(signalMessage)
     if type(signal) == signalGetRich.Signal:
         if signal.isValid():
-            signal.stake = financeiroGetRich.getStake(getBalance())
+            signal.stake = financeiroGetRich.getStake()
             addSignalToLine(signal)
             return '[OverMilionariosOB] Sinal adicionado na lista.'
     return
@@ -226,7 +243,7 @@ def addList(message, listType):
         isValid = False
 
     if isValid:
-        stake = financeiroGetRich.getStake(getBalance())
+        stake = financeiroGetRich.getStake()
         for signal in signalList:
             signal.stake = stake
             addSignalToLine(signal)
