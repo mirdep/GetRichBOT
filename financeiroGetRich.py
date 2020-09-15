@@ -12,6 +12,8 @@ with open(HISTORICO_ENTRADA, 'a') as (writer):
 LOG_LABEL = '[Financeiro]'
 SEPARATOR = ' | '
 
+MINIMUM_STAKE = 2
+
 def LOG(message):
     print('\n'+LOG_LABEL + ' ' + message)
 
@@ -71,18 +73,22 @@ def podeExecutar(saldoAtual, signal):
     saldoStopWin = getSaldoStopWin(saldoAtual)
     saldoStopLoss = getSaldoStopLoss(saldoAtual)
 
-    if saldoAtual >= saldoStopWin and saldoAtual <= saldoStopWin*1.002:
+    if saldoAtual >= saldoStopWin and saldoAtual < saldoStopWin+MINIMUM_STAKE:
         LOG('Você já atingiu seu Stop Win de hoje. Parabéns, já pode descansar!')
-    elif saldoAtual > saldoStopWin*1.002:
+    elif saldoAtual >= saldoStopWin+MINIMUM_STAKE:
         if signal.qtdMG == 0:
             LOG('Você já atingiu seu Stop Win de hoje. Operando com a gordura!')
             podeExecutar = True
-            signal.stake = (saldoAtual - saldoStopWin)*0.95
+            signal.stake = (saldoAtual - saldoStopWin)/3
             if signal.stake > getStake():
                 signal.stake = getStake()
         else:
-            LOG('Não é possível realizar Gale com gordura no momento. Aguarde futuras novidades!')
-            #Futuramente: Código para Gale com gordura
+            if signal.stake*2 >= saldoAtual - saldoStopWin:
+                LOG('Realizando Gale na gordura!')
+                podeExecutar = True
+                signal.stake = calculateGale(signal.stake)
+            else:
+                LOG('Gordura insuficiente para realizar Gale!')
     elif saldoAtual <= saldoStopLoss:
         LOG('Você já atingiu seu Stop Loss de hoje. Não desanime, amanhã você vai recuperar!')
     else:
