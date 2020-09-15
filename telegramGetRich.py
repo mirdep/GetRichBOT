@@ -190,9 +190,9 @@ async def my_event_handler(event):
         commandState = [0, 0]
         await sendMessage('Mensagem foi encaminhada do ID = ' + from_id)
 
-    #elif isOverMilionarios(sender):
-        #result = iqoptionGetRich.addSignal_OverMilionarios(message)
-        #await sendMessage(result)
+    elif isOverMilionarios(sender):
+        result = iqoptionGetRich.addSignal_OverMilionarios(message)
+        await sendMessage(result)
 
     elif isMe(event):
         if commandState[0] == 0:

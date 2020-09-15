@@ -70,7 +70,7 @@ def getSignalsInLine():
             line += str(i + 1) + 'ª - ' + signalExecLine[i].toString() + '\n'
 
     else:
-        line = 'Nenhum sinal de entrada na fila. Você é um fracassado amigão!'
+        line = 'Nenhum sinal de entrada na fila!'
     return line
 
 
@@ -224,13 +224,15 @@ def removeSignalFromLine(signal):
 
 
 def addSignal_OverMilionarios(signalMessage):
-    signal = decodeSignalList.getSignal(signalMessage)
-    if type(signal) == signalGetRich.Signal:
-        if signal.isValid():
-            signal.stake = financeiroGetRich.getStake()
-            addSignalToLine(signal)
-            return '[OverMilionariosOB] Sinal adicionado na lista.'
-    return
+    resultMessage = None
+    if configReader.get('ativar_overm') == 'S':
+        if signalMessage.find("Gale sempre no mesmo sentido") != -1:
+            signal = decodeSignalList.getSignal(signalMessage)
+            if signal.isValid():
+                signal.stake = financeiroGetRich.getStake()
+                addSignalToLine(signal)
+            resultMessage = '[OverMilionariosOB] Sinal ao-vivo adicionado na lista.'
+    return resultMessage
 
 
 def addList(message, listType):
