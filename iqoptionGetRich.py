@@ -222,6 +222,9 @@ def addSignalToLine(signal):
 def removeSignalFromLine(signal):
     signalExecLine.remove(signal)
 
+def resetarBanca():
+    financeiroGetRich.atualizarBanca(getBalance())
+
 
 def addSignal_OverMilionarios(signalMessage):
     resultMessage = None

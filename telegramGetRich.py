@@ -178,6 +178,19 @@ async def cmd_editarConfigs(message):
                 await sendMessage('Não foi possível alterar a condiguração.')
         commandState = [0,0]
 
+async def cmd_resetarSaldo(message):
+    global commandState
+    if commandState[1] == 0:
+        await sendMessage('Esse comando serve para zerar a contagem do lucro de hoje.\nDeseja continuar? (S/N)')
+        commandState[1] = 1
+
+    elif commandState[1] == 1:
+        if message == 'S':
+            iqoptionGetRich.resetarBanca()
+            await sendMessage('Lucro resetado com sucesso!')
+            await cmd_mostrarSaldo()
+        commandState = [0,0]
+
 
 @telegramClient.on(events.NewMessage)
 async def my_event_handler(event):
@@ -211,8 +224,10 @@ async def my_event_handler(event):
                 commandState = [6, 0]
             elif command == '/config':
                 commandState = [7, 0]
+            elif command == '/resetar':
+                commandState = [8, 0]
             else:
-                await sendMessage('Olá seu noiado!\nSegue a lista de comandos disponíveis: \n\n/lista \n/fila \n/zerarfila \n/saldo \n/desligar \n/executadas \n/config')
+                await sendMessage('Olá seu noiado!\nSegue a lista de comandos disponíveis: \n\n/lista \n/fila \n/zerarfila \n/saldo \n/desligar \n/executadas \n/config \n/resetar')
 
         if commandState[0] == 1:
             await cmd_adicionarLista(message)
@@ -239,6 +254,9 @@ async def my_event_handler(event):
 
         elif commandState[0] == 7:
             await cmd_editarConfigs(message)
+
+        elif commandState[0] == 8:
+            await cmd_resetarSaldo(message)
 
 #======= TESTES
 #iqoptionGetRich.execSignal(signalGetRich.Signal(1598590445,100,'EURUSD','put',1))
