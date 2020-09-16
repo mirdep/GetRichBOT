@@ -117,7 +117,16 @@ async def cmd_adicionarLista(message):
 
 
 async def cmd_listarFilaSinais():
-    await sendMessage(iqoptionGetRich.getSignalsInLine())
+    message = ''
+    signalExecLine = iqoptionGetRich.getSignalsInLine()
+    if len(signalExecLine) > 0:
+        message = '> Sinais Cadastrados <\n\n'
+        for i in range(len(signalExecLine)):
+            message += str(i + 1) + 'ª - ' + signalExecLine[i].toString() + '\n'
+
+    else:
+        message = 'Nenhum sinal de entrada na fila!'
+    await sendMessage(message)
 
 
 async def cmd_zerarFila():

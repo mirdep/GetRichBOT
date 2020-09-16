@@ -47,6 +47,8 @@ def getSaldo():
     message += 'StopWin = '+formatMoneyBRL(stopWin)+'\n'
     stopLoss = financeiroGetRich.getSaldoStopLoss(saldoAtual)
     message += 'StopLoss = '+formatMoneyBRL(stopLoss)+'\n'
+    maxgale = configReader.get('max_gale')
+    message += 'Operando com '+maxgale+'MG\n'
     message += '--------------------------------------\n'
     message += 'Saldo atual = '+formatMoneyBRL(saldoAtual)+'\n'
     lucro = saldoAtual - saldoHoje
@@ -62,16 +64,14 @@ def printSignalLineInfo():
     global signalExecLine
     LOG('== FILA DE ESPERA DE ENTRADA =>> ' + str(len(signalExecLine)))
 
+def atualizarStakeFila():
+    global signalExecLine
+    for i in range(len(signalExecLine)):
+        signalExecLine[i].stake = financeiroGetRich.getStake()
 
 def getSignalsInLine():
-    if len(signalExecLine) > 0:
-        line = '> Sinais Cadastrados <\n\n'
-        for i in range(len(signalExecLine)):
-            line += str(i + 1) + 'ª - ' + signalExecLine[i].toString() + '\n'
-
-    else:
-        line = 'Nenhum sinal de entrada na fila!'
-    return line
+    atualizarStakeFila()
+    return signalExecLine
 
 
 def clearSignalsLine():
@@ -84,6 +84,7 @@ def clearSignalsLine():
 
 
 def getNextSignal():
+    global signalExecLine
     if len(signalExecLine) == 0:
         return False, 0
     return True, signalExecLine[0]
