@@ -155,7 +155,7 @@ def realizarOperacao(signal):
         realizarMG = processarResultado(signal, id, tipo)
 
     else:
-        print('\nErro ao executar entrada:\n' + signal.toString())
+        print('\nNão foi possível executar a entrada:\n' + signal.toString())
 
     return realizarMG
 

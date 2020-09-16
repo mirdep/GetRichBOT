@@ -72,6 +72,7 @@ def podeExecutar(saldoAtual, signal):
 
     saldoStopWin = getSaldoStopWin(saldoAtual)
     saldoStopLoss = getSaldoStopLoss(saldoAtual)
+    gordura = saldoAtual - saldoStopWin
 
     if saldoAtual >= saldoStopWin and saldoAtual < saldoStopWin+MINIMUM_STAKE:
         LOG('Você já atingiu seu Stop Win de hoje. Parabéns, já pode descansar!')
@@ -79,11 +80,14 @@ def podeExecutar(saldoAtual, signal):
         if signal.qtdMG == 0:
             LOG('Você já atingiu seu Stop Win de hoje. Operando com a gordura!')
             podeExecutar = True
-            signal.stake = (saldoAtual - saldoStopWin)/3
-            if signal.stake > getStake():
-                signal.stake = getStake()
+            if gordura >= MINIMUM_STAKE*3:
+                signal.stake = gordura/3
+                if signal.stake > getStake():
+                    signal.stake = getStake()
+            else:
+                signal.stake = gordura
         else:
-            if signal.stake*2 >= saldoAtual - saldoStopWin:
+            if signal.stake*2 <= gordura:
                 LOG('Realizando Gale na gordura!')
                 podeExecutar = True
                 signal.stake = calculateGale(signal.stake)
