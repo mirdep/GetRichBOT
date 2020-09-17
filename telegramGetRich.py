@@ -267,10 +267,6 @@ async def my_event_handler(event):
         elif commandState[0] == 8:
             await cmd_resetarSaldo(message)
 
-#======= TESTES
-#iqoptionGetRich.execSignal(signalGetRich.Signal(1598590445,100,'EURUSD','put',1))
-#iqoptionGetRich.execSignal(signalGetRich.Signal(1598590445,100,'EURUSD','call',1))
-
 def startTelegram():
     try:
         telegramClient.start(configReader.get('telefone'))

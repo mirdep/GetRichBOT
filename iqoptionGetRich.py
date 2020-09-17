@@ -3,6 +3,7 @@ from iqoptionapi.stable_api import IQ_Option
 import threading
 import asyncio
 from datetime import datetime
+import datetime as TIME
 import signalGetRich, financeiroGetRich, decodeSignalList, decodeOverMilionarios
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s', level=(logging.WARNING))
@@ -127,6 +128,48 @@ def buy(signal):
         return True, 'digital', id
     return None, None, None
 
+
+pares = []
+ultimaChecagemPares = 0
+gettingPares = False
+def getPares():
+    global pares
+    global ultimaChecagemPares
+    global gettingPares
+    tempoAgora = datetime.timestamp(datetime.now())
+    tempoDesdeUltimaChecagem = tempoAgora - ultimaChecagemPares
+    if tempoDesdeUltimaChecagem >= 300 and not gettingPares:
+        ultimaChecagemPares = tempoAgora
+        gettingPares = True
+        pares = iqoptionClient.get_all_open_time()
+        gettingPares = False
+    return pares
+getPares()
+
+
+def getParesAbertos(isTurbo=False):
+    paresAbertos = []
+    pares = getPares()
+    if isTurbo:
+        mercados = ['turbo','digital']
+    else:
+        mercados = ['binary','digital']
+    for mercado in mercados:
+        for par in pares[mercado]:
+            if pares[mercado][par]['open'] == True:
+                paresAbertos.append(par)
+    return paresAbertos
+
+def parEstaAberto(par, duracao):
+    if duracao <= 5:
+        paresAbertos = getParesAbertos(isTurbo=True)
+    else:
+        paresAbertos = getParesAbertos()
+    for parAberto in paresAbertos:
+        if parAberto.find(par) != -1:
+            return True, parAberto
+    return False, None
+
 def processarResultado(signal, id, tipo):
     realizarMG = False
     profit = getResult(id, tipo)
@@ -143,19 +186,24 @@ def processarResultado(signal, id, tipo):
     return realizarMG
 
 def realizarOperacao(signal):
-    completed, tipo, id = buy(signal)
     realizarMG = False
-    if completed:
-        message = '\n=====ENTRADA FEITA=====\n'
-        if signal.qtdMG > 0:
-            message += str(signal.qtdMG) + 'º MartinGale\n'
-        message += 'ID = ' + str(id) + '\n' + signal.toString() + '\n=======================\n'
-        print(message)
-        time.sleep(30)
-        realizarMG = processarResultado(signal, id, tipo)
-
+    estaAberto, par = parEstaAberto(signal.asset, signal.duration)
+    if not estaAberto:
+        print('\n🔒 Mercado fechado 🔒: ' + signal.toString())
     else:
-        print('\nNão foi possível executar a entrada:\n' + signal.toString())
+        signal.asset = par
+        completed, tipo, id = buy(signal)
+        if completed:
+            message = '\n=====ENTRADA FEITA=====\n'
+            if signal.qtdMG > 0:
+                message += str(signal.qtdMG) + 'º MartinGale\n'
+            message += 'ID = ' + str(id) + '\n' + signal.toString() + '\n=======================\n'
+            print(message)
+            time.sleep(30)
+            realizarMG = processarResultado(signal, id, tipo)
+
+        else:
+            print('\nSaldo ou fundos indisponíveis: ' + signal.toString())
 
     return realizarMG
 
@@ -194,6 +242,8 @@ def signalLineExecution():
                 requestSignalExec(nextSignal)
                 removeSignalFromLine(nextSignal)
                 fastCheck = True
+            elif now + 10 >= nextSignal.time:
+                getPares()
         if not fastCheck:
             time.sleep(0.5)
 

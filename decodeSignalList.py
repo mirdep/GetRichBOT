@@ -3,6 +3,7 @@ from datetime import datetime
 import datetime as TIME
 
 assetsList = ['EUR', 'USD', 'JPY', 'GBP', 'CAD', 'AUD', 'NZD', 'CHF']
+paresExistentes = ['EURUSD','EURGBP','GBPJPY','EURJPY','GBPUSD','USDJPY','EURUSD-OTC','EURGBP-OTC','USDCHF-OTC','EURJPY-OTC','NZDUSD-OTC','GBPUSD-OTC','GBPJPY-OTC','USDJPY-OTC','AUDCAD-OTC','AUDUSD','USDCAD','AUDJPY','GBPCAD','GBPCHF','EURCAD','EURAUD']
 
 def getTime(info):
     time = None

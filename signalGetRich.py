@@ -58,7 +58,7 @@ class Signal:
         return self.timeIsValid() and self.stakeIsValid() and self.assetIsValid() and self.actionIsValid() and self.durationIsValid()
 
     def toString(self):
-        return formatTime(self.time) + ' M' + str(self.duration) + ' ' + self.asset + ' ' + self.action + ' R$' + '{:.2f}'.format(self.stake)
+        return formatTime(self.time) + ' M' + str(self.duration) + ' ' + self.asset + ' ' + self.action.upper() + ' R$' + '{:.2f}'.format(self.stake)
 
     def isEqual(self, signal):
         return self.time == signal.time and self.stake == signal.stake and self.asset == signal.asset and self.action == signal.action and self.duration == signal.duration
