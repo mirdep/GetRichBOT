@@ -285,7 +285,9 @@ def addSignal_OverMilionarios(signalMessage):
             if signal.isValid():
                 signal.stake = financeiroGetRich.getStake()
                 addSignalToLine(signal)
-            resultMessage = '[OverMilionariosOB] Sinal ao-vivo adicionado na lista.'
+                resultMessage = '[OverMilionariosOB] Sinal ao-vivo adicionado na lista.'
+            else:
+                resultMessage = '[OverMilionariosOB] Sinal ao-vivo inválido. Algo foi escrito errado!'
     return resultMessage
 
 
